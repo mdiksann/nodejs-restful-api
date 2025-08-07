@@ -1,7 +1,8 @@
 import supertest from "supertest";
 import {web} from "../src/application/web.js";
 import {logger} from "../src/application/logging.js";
-import {createTestUser, removeTestUser} from "./test-util.js";
+import {createTestUser, removeTestUser, getTestUser} from "./test-util.js";
+import bcrypt from "bcrypt";
 
 describe('POST /api/users', function () {
 
@@ -34,7 +35,10 @@ describe('POST /api/users', function () {
             });
 
         logger.info(result.body);
-
+        
+        if (result.status !== 400) {
+            console.log(result.body);
+        }
         expect(result.status).toBe(400);
         expect(result.body.errors).toBeDefined();
     });
