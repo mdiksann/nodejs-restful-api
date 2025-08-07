@@ -165,3 +165,68 @@ describe('GET /api/users/current', function () {
         expect(result.body.errors).toBeDefined();
     });
 });
+
+describe('PATCH /api/users/current', function () {
+    beforeEach(async () => {
+        await createTestUser();
+    });
+
+    afterEach(async () => {
+        await removeTestUser();
+    });
+
+    it('should can update user', async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                name: "Iksan",
+                password: "rahasiaaja"
+            });
+
+        expect(result.status).toBe(200);
+        expect(result.body.data.username).toBe("test");
+        expect(result.body.data.name).toBe("Iksan");
+
+        const user = await getTestUser();
+        expect(await bcrypt.compare("rahasiaaja", user.password)).toBe(true);
+    });
+
+    it('should can update user name', async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                name: "Iksan"
+            });
+
+        expect(result.status).toBe(200);
+        expect(result.body.data.username).toBe("test");
+        expect(result.body.data.name).toBe("Iksan");
+    });
+
+    it('should can update user password', async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "test")
+            .send({
+                password: "rahasiaaja"
+            });
+
+        expect(result.status).toBe(200);
+        expect(result.body.data.username).toBe("test");
+        expect(result.body.data.name).toBe("test");
+
+        const user = await getTestUser();
+        expect(await bcrypt.compare("rahasiaaja", user.password)).toBe(true);
+    });
+
+    it('should reject if request is not valid', async () => {
+        const result = await supertest(web)
+            .patch("/api/users/current")
+            .set("Authorization", "salah")
+            .send({});
+
+        expect(result.status).toBe(401);
+    });
+});
